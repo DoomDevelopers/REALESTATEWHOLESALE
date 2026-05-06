@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wholesale Deal Analyzer — Sire Investing LLC</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --surface2: #1e2026;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.14);
+    --text: #f0ede8;
+    --text-muted: #7a7a82;
+    --text-dim: #3e3e45;
+    --green: #4ade80;
+    --green-bg: rgba(74,222,128,0.08);
+    --green-border: rgba(74,222,128,0.2);
+    --amber: #fbbf24;
+    --amber-bg: rgba(251,191,36,0.08);
+    --amber-border: rgba(251,191,36,0.2);
+    --red: #f87171;
+    --red-bg: rgba(248,113,113,0.08);
+    --red-border: rgba(248,113,113,0.2);
+    --blue: #60a5fa;
+    --blue-bg: rgba(96,165,250,0.08);
+    --blue-border: rgba(96,165,250,0.2);
+    --accent: #c8a96e;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--accent);
+    letter-spacing: 0.01em;
+  }
+
+  .logo span {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 400;
+    display: block;
+    margin-top: -2px;
+  }
+
+  .header-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: var(--amber-bg);
+    color: var(--amber);
+    border: 1px solid var(--amber-border);
+    letter-spacing: 0.04em;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    margin-bottom: 28px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .tab:hover { color: var(--text); background: var(--surface2); }
+  .tab.active { background: var(--surface2); color: var(--accent); border: 1px solid var(--border-hover); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+
+  @media (max-width: 540px) {
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    header { flex-wrap: wrap; }
+  }
+
+  .section { margin-bottom: 24px; }
+
+  .section-title {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+
+  input[type=text], input[type=number], select {
+    width: 100%;
+    height: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 0 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+  }
+
+  input:focus, select:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--text-dim); }
+
+  .prefix-wrap { position: relative; }
+  .prefix-wrap .sym {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .prefix-wrap input { padding-left: 22px; }
+
+  .addons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 8px;
+  }
+
+  @media (max-width: 480px) { .addons { grid-template-columns: 1fr; } }
+
+  .addon {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--surface);
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .addon:hover { border-color: var(--border-hover); color: var(--text); }
+  .addon.checked { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
+  .addon input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .result-verdict {
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .vdot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--text-dim);
+  }
+
+  .vtext { font-size: 15px; font-weight: 500; }
+  .vsub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .mc {
+    padding: 16px 18px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .mc:nth-child(2n) { border-right: none; }
+  .mc:nth-last-child(-n+2) { border-bottom: none; }
+  .mc .ml { font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
+  .mc .mv { font-size: 20px; font-weight: 500; color: var(--text); }
+
+  .offer-bands {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .band {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .band:last-child { border-bottom: none; }
+  .band.sweet { background: var(--green-bg); border-left: 3px solid var(--green); }
+  .band .bl { font-size: 13px; color: var(--text-muted); }
+  .band.sweet .bl { color: var(--green); font-weight: 500; }
+  .band .bv { font-size: 15px; font-weight: 500; }
+  .band.sweet .bv { color: var(--green); }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  button, .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-hover);
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  button:hover { background: var(--surface); border-color: var(--accent); color: var(--accent); }
+  button:active { transform: scale(0.98); }
+
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0e0f11;
+  }
+
+  .btn-primary:hover { background: #d4b87a; border-color: #d4b87a; color: #0e0f11; }
+
+  .script-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .script-card .placeholder { color: var(--accent); font-style: italic; }
+
+  .objection-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .obj-row {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .obj-row:last-child { border-bottom: none; }
+
+  .obj-q {
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--amber);
+    border-right: 1px solid var(--border);
+    background: var(--amber-bg);
+  }
+
+  .obj-a {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 540px) {
+    .obj-row { grid-template-columns: 1fr; }
+    .obj-q { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) { .stat-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+  }
+
+  .stat .sl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 5px; }
+  .stat .sv { font-size: 22px; font-weight: 500; }
+
+  .lead-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .lead-item:hover { border-color: var(--border-hover); }
+
+  .lead-addr { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .lead-meta { font-size: 12px; color: var(--text-muted); }
+  .lead-notes { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+  .status-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .s-new    { background: var(--blue-bg);  color: var(--blue);  border: 1px solid var(--blue-border); }
+  .s-cont   { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+  .s-walk   { background: rgba(167,139,250,0.08); color: #a78bfa; border: 1px solid rgba(167,139,250,0.2); }
+  .s-offer  { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+  .s-under  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .s-assign { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .s-dead   { background: rgba(120,120,130,0.08); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .del-btn {
+    font-size: 11px;
+    padding: 3px 9px;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    margin-top: 6px;
+  }
+
+  .del-btn:hover { border-color: var(--red-border); color: var(--red); background: var(--red-bg); }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  .tip {
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--blue);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 70px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.15s;
+  }
+
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    Sire Investing LLC
+    <span>Wholesale Deal Analyzer</span>
+  </div>
+  <div class="header-badge">DFW · Texas</div>
+</header>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('analyzer')">Deal analyzer</button>
+    <button class="tab" onclick="showTab('script')">Offer script</button>
+    <button class="tab" onclick="showTab('tracker')">Lead tracker</button>
+  </div>
+
+  <!-- ANALYZER -->
+  <div id="panel-analyzer" class="panel active">
+
+    <div class="section">
+      <div class="section-title">Property info</div>
+      <div class="field">
+        <label>Address / nickname</label>
+        <input type="text" id="addr" placeholder="e.g. 1234 Oak St, Garland TX" oninput="calc()">
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Bedrooms</label>
+          <input type="number" id="beds" value="3" min="1" max="10" oninput="calc()">
+        </div>
+        <div class="field">
+          <label>Square footage</label>
+          <input type="number" id="sqft" value="1200" min="100" oninput="calc()">
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Numbers</div>
+      <div class="grid2">
+        <div class="field">
+          <label>ARV — after repair value</label>
+          <div class="prefix-wrap"><span class="sym">$</span><input type="number" id="arv" value="180000" min="0" oninput="calc()"></div>
+        </div>
+        <div class="field">
+          <label>Base repair estimate</label>
+          <div class="prefix-wrap"><span class="sym">$</span><input type="number" id="repairs" value="30000" min="0" oninput="calc()"></div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Your assignment fee goal</label>
+          <div class="prefix-wrap"><span class="sym">$</span><input type="number" id="fee" value="10000" min="0" oninput="calc()"></div>
+        </div>
+        <div class="field">
+          <label>Estimated closing costs</label>
+          <div class="prefix-wrap"><span class="sym">$</span><input type="number" id="closing" value="2000" min="0" oninput="calc()"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Condition flags — adds to repair estimate</div>
+      <div class="addons">
+        <label class="addon" id="a1"><input type="checkbox" onchange="toggleAddon(this,'a1',5000)"> Foundation issues (+$5k)</label>
+        <label class="addon" id="a2"><input type="checkbox" onchange="toggleAddon(this,'a2',8000)"> Roof replacement (+$8k)</label>
+        <label class="addon" id="a3"><input type="checkbox" onchange="toggleAddon(this,'a3',4000)"> AC / HVAC replacement (+$4k)</label>
+        <label class="addon" id="a4"><input type="checkbox" onchange="toggleAddon(this,'a4',6000)"> Full kitchen gut (+$6k)</label>
+        <label class="addon" id="a5"><input type="checkbox" onchange="toggleAddon(this,'a5',3500)"> Plumbing restack (+$3.5k)</label>
+        <label class="addon" id="a6"><input type="checkbox" onchange="toggleAddon(this,'a6',2500)"> Electrical panel (+$2.5k)</label>
+      </div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-verdict">
+        <div class="vdot" id="vdot"></div>
+        <div>
+          <div class="vtext" id="vtext">Enter numbers above</div>
+          <div class="vsub" id="vsub">Results update live</div>
+        </div>
+      </div>
+      <div class="metrics-grid">
+        <div class="mc"><div class="ml">Your max offer (MAO)</div><div class="mv" id="mao">—</div></div>
+        <div class="mc"><div class="ml">Investor profit margin</div><div class="mv" id="ipm">—</div></div>
+        <div class="mc"><div class="ml">Total repairs (adjusted)</div><div class="mv" id="trep">—</div></div>
+        <div class="mc"><div class="ml">Fee headroom</div><div class="mv" id="fhroom">—</div></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-bottom:10px">Offer range</div>
+    <div class="offer-bands">
+      <div class="band">
+        <span class="bl">Aggressive — max squeeze</span>
+        <span class="bv" id="b-agg">—</span>
+      </div>
+      <div class="band sweet">
+        <span class="bl">Sweet spot offer</span>
+        <span class="bv" id="b-sweet">—</span>
+      </div>
+      <div class="band">
+        <span class="bl">Conservative — walk if above this</span>
+        <span class="bv" id="b-cons">—</span>
+      </div>
+    </div>
+
+    <div class="tip">
+      Formula: MAO = (ARV × 0.70) − repairs. Your sweet spot = MAO − your fee − closing costs. Always leave the investor 25–30% margin or they won't buy.
+    </div>
+
+  </div>
+
+  <!-- SCRIPT -->
+  <div id="panel-script" class="panel">
+
+    <div class="section-title" style="margin-bottom:12px">Cold call script — motivated sellers</div>
+    <div class="script-card">Hi, is this <span class="placeholder">[Owner's name]</span>?
+
+Hi <span class="placeholder">[Name]</span>, my name is Ibrahim — I'm a local real estate investor here in DFW. I buy houses directly from homeowners, as-is, cash, and I can close fast — usually 2–3 weeks.
+
+I came across your property at <span class="placeholder">[address]</span> and wanted to reach out — is that something you'd consider selling?
+
+<strong style="color:#c8a96e">— If yes —</strong>
+Great. I'm not a realtor, so there are no commissions or fees. I make a cash offer, you pick the closing date, we handle everything.
+
+Can I ask — what's your situation with the property? Are you currently living there?
+
+<span style="color:#7a7a82;font-style:italic">Listen — motivated sellers will tell you everything. Don't interrupt.</span>
+
+And if I could make you a fair cash offer today, what would you need to get out of it?
+
+<span style="color:#7a7a82;font-style:italic">They give a number. Don't react. Pause. Then say:</span>
+
+I appreciate that. Let me run some numbers on my end and I'll get back to you with an offer by <span class="placeholder">[tomorrow / end of week]</span>. Would that work?
+
+<span style="color:#7a7a82;font-style:italic">Get their number and email before hanging up. Always confirm the best time to call back.</span></div>
+
+    <div class="divider"></div>
+
+    <div class="section-title" style="margin-bottom:12px">Objection responses</div>
+    <div class="objection-card">
+      <div class="obj-row">
+        <div class="obj-q">"I'm not interested"</div>
+        <div class="obj-a">"No problem at all — can I ask, is it because you're happy with the property or already have plans for it?" <em style="color:#3e3e45">(often opens the door)</em></div>
+      </div>
+      <div class="obj-row">
+        <div class="obj-q">"I already have a realtor"</div>
+        <div class="obj-a">"That's great — I work differently. No listing, no showings, no commissions. If the timing ever changes, keep my number."</div>
+      </div>
+      <div class="obj-row">
+        <div class="obj-q">"What's your offer?"</div>
+        <div class="obj-a">"I need to see the property first to be fair to you. When's a good time for a quick 15-min walkthrough?"</div>
+      </div>
+      <div class="obj-row">
+        <div class="obj-q">"I want full price"</div>
+        <div class="obj-a">"I totally understand — the trade-off is speed and certainty. No repairs, no waiting. Would getting all cash in 2 weeks work at a slightly lower price?"</div>
+      </div>
+      <div class="obj-row">
+        <div class="obj-q">"I need to think about it"</div>
+        <div class="obj-a">"Of course — this is a big decision. Can I follow up on <span style="color:#c8a96e">[specific day]</span>? I want to make sure you have all the info."</div>
+      </div>
+      <div class="obj-row">
+        <div class="obj-q">"My neighbor said I could get more"</div>
+        <div class="obj-a">"They may be right on list price — the difference is I'm offering cash, no repairs, no contingencies, and closing on your timeline. That has real value."</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-title" style="margin-bottom:12px">Buyer blast email template</div>
+    <div class="script-card">Subject: Off-market deal — <span class="placeholder">[City/Zip]</span> | ARV <span class="placeholder">$XXX,XXX</span> | Asking <span class="placeholder">$XX,XXX</span>
+
+Hey <span class="placeholder">[Buyer name / "team"]</span>,
+
+Just locked up an off-market property — details below. Reply fast if interested, I'm sending to a short list.
+
+📍 <span class="placeholder">[Address or cross streets]</span>
+🏠 <span class="placeholder">[Beds/baths, sqft]</span>
+🔨 ARV: <span class="placeholder">$XXX,XXX</span> | Repairs: ~<span class="placeholder">$XX,XXX</span>
+💰 Asking: <span class="placeholder">$XX,XXX</span> (includes my assignment fee)
+📅 Close by: <span class="placeholder">[Date]</span>
+
+<span style="color:#7a7a82">Comps available on request. Property is under contract — first buyer with POF wins it.</span>
+
+— Ibrahim
+Sire Investing LLC
+<span class="placeholder">[Phone]</span> | <span class="placeholder">[Email]</span></div>
+
+  </div>
+
+  <!-- TRACKER -->
+  <div id="panel-tracker" class="panel">
+
+    <div class="stat-grid" id="stat-grid">
+      <div class="stat"><div class="sl">Total leads</div><div class="sv" id="stat-total">0</div></div>
+      <div class="stat"><div class="sl">Active</div><div class="sv" id="stat-active" style="color:var(--amber)">0</div></div>
+      <div class="stat"><div class="sl">Under contract</div><div class="sv" id="stat-contract" style="color:var(--green)">0</div></div>
+    </div>
+
+    <div class="section-title" style="margin-bottom:12px">Add new lead</div>
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="field"><label>Address</label><input type="text" id="t-addr" placeholder="123 Main St, Dallas TX 75216"></div>
+      <div class="field"><label>Seller name</label><input type="text" id="t-name" placeholder="John Smith"></div>
+    </div>
+    <div class="grid3" style="margin-bottom:12px">
+      <div class="field">
+        <label>Asking price</label>
+        <div class="prefix-wrap"><span class="sym">$</span><input type="number" id="t-ask" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label>Your offer</label>
+        <div class="prefix-wrap"><span class="sym">$</span><input type="number" id="t-offer" placeholder="0"></div>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="t-status">
+          <option>New lead</option>
+          <option>Contacted</option>
+          <option>Walkthrough</option>
+          <option>Offer sent</option>
+          <option>Under contract</option>
+          <option>Assigned</option>
+          <option>Dead</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:16px">
+      <label>Notes</label>
+      <textarea id="t-notes" placeholder="Motivated — divorce, wants to close in 3 weeks. Called twice, responsive."></textarea>
+    </div>
+    <button class="btn-primary" onclick="addLead()" style="margin-bottom:28px">Add lead</button>
+
+    <div class="section-title" style="margin-bottom:12px">Pipeline</div>
+    <div id="lead-list"></div>
+
+  </div>
+
+</div>
+
+<script>
+var addons = {};
+var leads = JSON.parse(localStorage.getItem('sire-leads') || '[]');
+
+function showTab(t) {
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('panel-' + t).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+
+function getTotalRepairs() {
+  var base = parseFloat(document.getElementById('repairs').value) || 0;
+  var extra = Object.values(addons).reduce(function(a,b){ return a+b; }, 0);
+  return base + extra;
+}
+
+function toggleAddon(cb, id, val) {
+  if (cb.checked) { addons[id] = val; document.getElementById(id).classList.add('checked'); }
+  else { delete addons[id]; document.getElementById(id).classList.remove('checked'); }
+  calc();
+}
+
+function calc() {
+  var arv = parseFloat(document.getElementById('arv').value) || 0;
+  var repairs = getTotalRepairs();
+  var fee = parseFloat(document.getElementById('fee').value) || 0;
+  var closing = parseFloat(document.getElementById('closing').value) || 0;
+
+  document.getElementById('trep').textContent = repairs > 0 ? fmt(repairs) : '—';
+
+  if (!arv) {
+    document.getElementById('mao').textContent = '—';
+    document.getElementById('ipm').textContent = '—';
+    document.getElementById('fhroom').textContent = '—';
+    document.getElementById('b-agg').textContent = '—';
+    document.getElementById('b-sweet').textContent = '—';
+    document.getElementById('b-cons').textContent = '—';
+    return;
+  }
+
+  var mao = arv * 0.70 - repairs;
+  var investorProfit = arv * 0.30 - repairs;
+  var ipm = Math.round((investorProfit / arv) * 100);
+  var sweetSpot = mao - fee - closing;
+  var aggressive = mao - closing;
+  var conservative = sweetSpot - 5000;
+  var feeHeadroom = sweetSpot;
+
+  document.getElementById('mao').textContent = fmt(mao);
+  document.getElementById('ipm').textContent = ipm + '%';
+  document.getElementById('fhroom').textContent = feeHeadroom > 0 ? fmt(feeHeadroom) : 'Too tight';
+  document.getElementById('b-agg').textContent = fmt(aggressive);
+  document.getElementById('b-sweet').textContent = fmt(sweetSpot);
+  document.getElementById('b-cons').textContent = fmt(conservative);
+
+  var dot = document.getElementById('vdot');
+  var vt = document.getElementById('vtext');
+  var vs = document.getElementById('vsub');
+
+  if (sweetSpot < 20000) {
+    dot.style.background = '#f87171';
+    vt.textContent = 'Not a deal';
+    vs.textContent = 'Spread too thin for your fee. Renegotiate or walk away.';
+  } else if (sweetSpot < 50000) {
+    dot.style.background = '#fbbf24';
+    vt.textContent = 'Borderline deal';
+    vs.textContent = 'Could work — see if seller will come down more.';
+  } else {
+    dot.style.background = '#4ade80';
+    vt.textContent = 'This is a deal';
+    vs.textContent = 'Good spread. Room for your fee and investor profit. Move fast.';
+  }
+}
+
+function saveLeads() {
+  localStorage.setItem('sire-leads', JSON.stringify(leads));
+}
+
+function addLead() {
+  var addr = document.getElementById('t-addr').value.trim();
+  if (!addr) { alert('Please enter an address.'); return; }
+  leads.unshift({
+    id: Date.now(),
+    addr: addr,
+    name: document.getElementById('t-name').value.trim() || 'Unknown',
+    ask: parseFloat(document.getElementById('t-ask').value) || 0,
+    offer: parseFloat(document.getElementById('t-offer').value) || 0,
+    status: document.getElementById('t-status').value,
+    notes: document.getElementById('t-notes').value.trim(),
+    date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'})
+  });
+  saveLeads();
+  document.getElementById('t-addr').value = '';
+  document.getElementById('t-name').value = '';
+  document.getElementById('t-ask').value = '';
+  document.getElementById('t-offer').value = '';
+  document.getElementById('t-notes').value = '';
+  document.getElementById('t-status').selectedIndex = 0;
+  renderLeads();
+}
+
+function deleteLead(id) {
+  if (!confirm('Remove this lead?')) return;
+  leads = leads.filter(function(l){ return l.id !== id; });
+  saveLeads();
+  renderLeads();
+}
+
+var statusClass = {
+  'New lead':'s-new','Contacted':'s-cont','Walkthrough':'s-walk',
+  'Offer sent':'s-offer','Under contract':'s-under','Assigned':'s-assign','Dead':'s-dead'
+};
+
+function renderLeads() {
+  var el = document.getElementById('lead-list');
+
+  if (!leads.length) {
+    el.innerHTML = '<div class="empty-state">No leads yet — add your first one above.<br><span style="font-size:11px;color:#3e3e45">Leads are saved in your browser automatically.</span></div>';
+  } else {
+    el.innerHTML = leads.map(function(l) {
+      var spread = l.ask && l.offer ? ' · spread ' + fmt(l.ask - l.offer) : '';
+      return '<div class="lead-item">' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="lead-addr">' + l.addr + '</div>' +
+          '<div class="lead-meta">' + l.name + (l.ask ? ' · asking ' + fmt(l.ask) : '') + spread + ' · ' + l.date + '</div>' +
+          (l.notes ? '<div class="lead-notes">' + l.notes + '</div>' : '') +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">' +
+          '<span class="status-badge ' + (statusClass[l.status]||'s-new') + '">' + l.status + '</span>' +
+          '<button class="del-btn" onclick="deleteLead(' + l.id + ')">remove</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  var active = leads.filter(function(l){ return l.status !== 'Dead' && l.status !== 'Assigned'; }).length;
+  var contracted = leads.filter(function(l){ return l.status === 'Under contract'; }).length;
+  document.getElementById('stat-total').textContent = leads.length;
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-contract').textContent = contracted;
+}
+
+calc();
+renderLeads();
+</script>
+</body>
+</html>
